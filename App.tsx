@@ -440,9 +440,10 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => (
-  <ThemeProvider>
-    <AppContent />
-  </ThemeProvider>
+  // <ThemeProvider>
+  //   <AppContent />
+  // </ThemeProvider>
+   <AppContent />
 );
 
 export default App;
