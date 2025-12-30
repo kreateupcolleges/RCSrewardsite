@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Moon, Sun, LayoutDashboard, UserCheck, Info } from 'lucide-react';
+import { Moon, Sun, LayoutDashboard, UserCheck, Info} from 'lucide-react';
 import SearchFilters from './components/SearchFilters';
 import StatsCards from './components/StatsCards';
 import StudentDetails from './components/StudentDetails';
@@ -8,6 +8,7 @@ import ActivityTable from './components/ActivityTable';
 import InternalMarks from './components/InternalMarks';
 import StudentAnalytics from './components/StudentAnalytics';
 import { AdminPortal } from './components/AdminPortal';
+
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { BATCHES, SYSTEM_HEADER_LABELS, INSTITUTION_CONFIG } from './config';
 import { THEME } from './theme';
@@ -18,7 +19,7 @@ import { Student, ActivityRow, SearchParams, SubjectMark } from './types';
 const AppContent: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   
-  // View Mode: 'student' or 'admin'
+  // View Mode: 'student', 'admin', or 'elite'
   const [viewMode, setViewMode] = useState<'student' | 'admin'>('student');
 
   // State: Data
@@ -57,8 +58,11 @@ const AppContent: React.FC = () => {
   const [consolidatedTotalRP, setConsolidatedTotalRP] = useState(0);
   const [consolidatedLoading, setConsolidatedLoading] = useState(false);
 
-  // 1. Fetch Master Sheet when Batch/Semester/Internal changes
+  // 1. Fetch Master Sheet when Batch/Semester/Internal changes (Only needed for Student/Admin views)
   const loadMasterSheet = useCallback(async () => {
+    // Skip loading master sheet data if in Elite mode (it handles its own data)
+    
+
     setLoading(true);
     setStatusMsg({ msg: "Loading master data...", type: 'info' });
     
@@ -78,25 +82,36 @@ const AppContent: React.FC = () => {
 
       const mergedStudents = new Map<string, Student>();
       let mergedHeaders = new Set<string>();
+      let successCount = 0;
 
       // Fetch all relevant sheets for the current scope
       await Promise.all(targetSheets.map(async (sheetKey) => {
-        const sheetConfig = batch.rewardSheets[sheetKey];
+        const sheetConfig = semConfig.rewardSheets[sheetKey];
         if (sheetConfig) {
-          const { headers: h, rows: r } = await fetchSheetData(sheetConfig);
-          h.forEach(hdr => mergedHeaders.add(hdr));
-          
-          const regKey = h.find(k => /register|reg no|roll/i.test(k));
-          if (regKey) {
-            r.forEach(row => {
-              const regNo = String(row[regKey]).toLowerCase().trim();
-              if (!regNo) return;
-              const existing = mergedStudents.get(regNo) || {};
-              mergedStudents.set(regNo, { ...existing, ...row });
-            });
+          try {
+            const { headers: h, rows: r } = await fetchSheetData(sheetConfig);
+            successCount++;
+            h.forEach(hdr => mergedHeaders.add(hdr));
+            
+            const regKey = h.find(k => /register|reg no|roll/i.test(k));
+            if (regKey) {
+              r.forEach(row => {
+                const regNo = String(row[regKey]).toLowerCase().trim();
+                if (!regNo) return;
+                const existing = mergedStudents.get(regNo) || {};
+                mergedStudents.set(regNo, { ...existing, ...row });
+              });
+            }
+          } catch (err) {
+            console.warn(`Failed to load sheet ${sheetKey}:`, err);
+            // Don't throw, just continue. This allows other sheets to load.
           }
         }
       }));
+
+      if (successCount === 0) {
+        throw new Error("Failed to load any data sheets. Please check configuration.");
+      }
 
       const finalHeaders = Array.from(mergedHeaders);
       const finalStudents = Array.from(mergedStudents.values());
@@ -124,7 +139,7 @@ const AppContent: React.FC = () => {
       }
     } catch (err: any) {
       console.error(err);
-      setStatusMsg({ msg: `Error: ${err.message}. Check console.`, type: 'error' });
+      setStatusMsg({ msg: `Error: ${err.message}. Check internet or config.`, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -225,7 +240,9 @@ const AppContent: React.FC = () => {
 
     try {
       const batch = BATCHES.find(b => b.id === params.batchId);
-      const sheetConfig = batch?.internalMarksSheets[params.internalId]?.[dept];
+      const semConfig = batch?.semesters[params.semesterId];
+      
+      const sheetConfig = semConfig?.internalMarksSheets[params.internalId]?.[dept];
       
       if (!sheetConfig) {
         setInternalError('No internal marks sheet configured for this department in this scope.');
@@ -241,7 +258,7 @@ const AppContent: React.FC = () => {
         return;
       }
 
-      const { subjects } = parseInternalMarks(h, studentRow, dept, batch.subjectConfig);
+      const { subjects } = parseInternalMarks(h, studentRow, dept, semConfig.subjectConfig);
       setInternalSubjects(subjects);
 
     } catch (err: any) {
@@ -268,12 +285,9 @@ const AppContent: React.FC = () => {
       let grandTotalRP = 0;
       const mergedSubjects = new Map<string, SubjectMark>();
 
-      const results = await Promise.all(internalIds.map(async (id) => {
-        let currentRP = 0;
-        let subjects: SubjectMark[] = [];
-
+      await Promise.all(internalIds.map(async (id) => {
         try {
-          const rSheet = batch.rewardSheets[id];
+          const rSheet = semConfig.rewardSheets[id];
           if(rSheet) {
               const { headers: rh, rows: rr } = await fetchSheetData(rSheet);
               const regH = rh.find(h => /register|reg no|roll/i.test(h));
@@ -281,40 +295,37 @@ const AppContent: React.FC = () => {
                   const rRow = rr.find(r => String(r[regH]).toLowerCase() === regNo.toLowerCase());
                   if (rRow) {
                       const relevantHeaders = rh.filter(h => !SYSTEM_HEADER_LABELS.includes(normalizeLabel(h)));
-                      currentRP = relevantHeaders.reduce((sum, h) => sum + (Number(rRow[h]) || 0), 0);
+                      const currentRP = relevantHeaders.reduce((sum, h) => sum + (Number(rRow[h]) || 0), 0);
+                      grandTotalRP += currentRP;
                   }
               }
           }
-          const iConfig = batch.internalMarksSheets[id]?.[dept];
+          
+          const iConfig = semConfig.internalMarksSheets[id]?.[dept];
           if (iConfig) {
               const { headers: ih, rows: ir } = await fetchSheetData(iConfig);
               const regH = ih.find(h => /register|reg no|roll/i.test(h));
               if (regH) {
                 const iRow = ir.find(r => String(r[regH]).toLowerCase() === regNo.toLowerCase());
                 if (iRow) {
-                    const res = parseInternalMarks(ih, iRow, dept, batch.subjectConfig);
-                    subjects = res.subjects;
+                    const res = parseInternalMarks(ih, iRow, dept, semConfig.subjectConfig);
+                    res.subjects.forEach(sub => {
+                      const existing = mergedSubjects.get(sub.code);
+                      if (existing) {
+                        existing.marks += sub.marks;
+                        existing.rp += sub.rp;
+                        existing.max += sub.max;
+                      } else {
+                        mergedSubjects.set(sub.code, { ...sub });
+                      }
+                    });
                 }
               }
           }
-        } catch (e) { }
-
-        return { currentRP, subjects };
+        } catch (e) { 
+          // Ignore individual sheet errors during consolidated load
+        }
       }));
-
-      results.forEach(res => {
-        grandTotalRP += res.currentRP;
-        res.subjects.forEach(sub => {
-          const existing = mergedSubjects.get(sub.code);
-          if (existing) {
-            existing.marks += sub.marks;
-            existing.rp += sub.rp;
-            existing.max += sub.max;
-          } else {
-            mergedSubjects.set(sub.code, { ...sub });
-          }
-        });
-      });
 
       setConsolidatedTotalRP(grandTotalRP);
       setConsolidatedSubjects(Array.from(mergedSubjects.values()));
@@ -351,16 +362,17 @@ const AppContent: React.FC = () => {
               <button
                 onClick={() => setViewMode('student')}
                 className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-xs md:text-sm font-medium transition-all ${
-                  viewMode === 'student' ? 'bg-white dark:bg-gray-600 shadow text-indigo-700 dark:text-indigo-300' : 'text-gray-500'
+                  viewMode === 'student' ? 'bg-white dark:bg-gray-600 shadow text-indigo-700 dark:text-indigo-300' : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 <UserCheck size={14} className="md:w-4 md:h-4" />
                 <span>Student</span>
               </button>
+              
               <button
                 onClick={() => setViewMode('admin')}
                 className={`flex items-center space-x-2 px-3 py-1.5 rounded-md text-xs md:text-sm font-medium transition-all ${
-                  viewMode === 'admin' ? 'bg-white dark:bg-gray-600 shadow text-indigo-700 dark:text-indigo-300' : 'text-gray-500'
+                  viewMode === 'admin' ? 'bg-white dark:bg-gray-600 shadow text-indigo-700 dark:text-indigo-300' : 'text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 <LayoutDashboard size={14} className="md:w-4 md:h-4" />
@@ -375,13 +387,16 @@ const AppContent: React.FC = () => {
       </header>
 
       <main className="container mx-auto mt-6 px-4 md:px-6">
-        {viewMode === 'admin' ? (
+        {viewMode === 'admin' && (
           <AdminPortal 
             students={students} headers={headers} batchLabel={currentBatch?.label || ""}
             currentBatchId={params.batchId} currentInternalId={params.internalId}
             onParamChange={handleParamChange}
           />
-        ) : (
+        )}
+
+
+        {viewMode === 'student' && (
           <>
             {statusMsg && (
               <div className={`mb-6 rounded-lg p-4 border flex items-center gap-3 ${
