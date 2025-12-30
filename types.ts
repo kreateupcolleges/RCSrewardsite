@@ -19,8 +19,8 @@ export interface SubjectRule {
   maxMarks: number;
 }
 
-// Configuration for subjects within a batch
-export interface BatchSubjectConfig {
+// Configuration for subjects within a specific SEMESTER
+export interface SemesterSubjectConfig {
   // Default max marks if a specific subject isn't found
   defaultMaxMarks: {
     Theory: number;
@@ -33,23 +33,25 @@ export interface BatchSubjectConfig {
   };
 }
 
-export interface BatchConfig {
-  id: string;
+export interface SemesterConfig {
   label: string;
+  internals: string[]; // e.g. ["IP1", "IP2"]
+  // Sheets specific to this semester
   rewardSheets: {
     [internalId: string]: SheetConfig;
   };
   internalMarksSheets: {
     [internalId: string]: InternalSheetConfig;
   };
-  // New: Configuration for parsing marks
-  subjectConfig: BatchSubjectConfig;
-  // New: Semester definitions
+  // Subjects specific to this semester
+  subjectConfig: SemesterSubjectConfig;
+}
+
+export interface BatchConfig {
+  id: string;
+  label: string;
   semesters: {
-    [semesterId: string]: {
-      label: string;
-      internals: string[]; // e.g. ["IP1", "IP2"]
-    };
+    [semesterId: string]: SemesterConfig;
   };
 }
 
@@ -63,6 +65,7 @@ export interface ActivityRow {
   category: string;
   maxPoints: number | null;
   points: number;
+  ip?: string; // To track which IP it came from
 }
 
 export interface SubjectMark {
