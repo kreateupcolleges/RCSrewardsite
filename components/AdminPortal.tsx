@@ -108,18 +108,22 @@ export const AdminPortal: React.FC<Props> = ({
         let mergedHeaders = new Set<string>();
 
         await Promise.all(targetSheets.map(async (sheetKey) => {
-           const sheetConfig = batch.rewardSheets[sheetKey];
+           const sheetConfig = semConfig.rewardSheets[sheetKey];
            if (sheetConfig) {
-             const { headers: h, rows: r } = await fetchSheetData(sheetConfig);
-             h.forEach(hdr => mergedHeaders.add(hdr));
-             const regKey = h.find(k => /register|reg no|roll/i.test(k));
-             if (regKey) {
-               r.forEach(row => {
-                 const regNo = String(row[regKey]).toLowerCase().trim();
-                 if (!regNo) return;
-                 const existing = mergedStudents.get(regNo) || {};
-                 mergedStudents.set(regNo, { ...existing, ...row });
-               });
+             try {
+                const { headers: h, rows: r } = await fetchSheetData(sheetConfig);
+                h.forEach(hdr => mergedHeaders.add(hdr));
+                const regKey = h.find(k => /register|reg no|roll/i.test(k));
+                if (regKey) {
+                  r.forEach(row => {
+                    const regNo = String(row[regKey]).toLowerCase().trim();
+                    if (!regNo) return;
+                    const existing = mergedStudents.get(regNo) || {};
+                    mergedStudents.set(regNo, { ...existing, ...row });
+                  });
+                }
+             } catch (err) {
+                console.warn(`Admin Load: Failed to fetch ${sheetKey}`, err);
              }
            }
         }));
@@ -323,91 +327,95 @@ export const AdminPortal: React.FC<Props> = ({
 
         if (targetDept) {
             for (const ipId of targetIPs) {
-              const sheetConfig = batch?.internalMarksSheets[ipId]?.[targetDept];
+              const sheetConfig = semConfig?.internalMarksSheets[ipId]?.[targetDept];
               if (sheetConfig) {
-                const { headers: iHeaders, rows: iRows } = await fetchSheetData(sheetConfig);
-                
-                // Detect Subjects
-                const confSubjects = batch?.subjectConfig.departments[targetDept] || [];
-                const subjectColumns: string[] = [];
-                
-                if (confSubjects.length > 0) {
-                   confSubjects.forEach(c => {
-                     const h = iHeaders.find(hdr => normalizeLabel(hdr).includes(normalizeLabel(c.code)));
-                     if(h) subjectColumns.push(h);
-                   });
-                } else {
-                   iHeaders.forEach(h => {
-                     const n = normalizeLabel(h);
-                     if (/[a-z]/.test(n) && /\d/.test(n) && !n.includes('total') && !n.endsWith('_rp')) {
-                       subjectColumns.push(h);
-                     }
-                   });
-                }
+                try {
+                    const { headers: iHeaders, rows: iRows } = await fetchSheetData(sheetConfig);
+                    
+                    // Detect Subjects using semester config
+                    const confSubjects = semConfig?.subjectConfig.departments[targetDept] || [];
+                    const subjectColumns: string[] = [];
+                    
+                    if (confSubjects.length > 0) {
+                       confSubjects.forEach(c => {
+                         const h = iHeaders.find(hdr => normalizeLabel(hdr).includes(normalizeLabel(c.code)));
+                         if(h) subjectColumns.push(h);
+                       });
+                    } else {
+                       iHeaders.forEach(h => {
+                         const n = normalizeLabel(h);
+                         if (/[a-z]/.test(n) && /\d/.test(n) && !n.includes('total') && !n.endsWith('_rp')) {
+                           subjectColumns.push(h);
+                         }
+                       });
+                    }
 
-                const iRegH = iHeaders.find(h => /reg/i.test(h));
-                const iNameH = iHeaders.find(h => /name/i.test(h));
-                const iEmailH = iHeaders.find(h => /email/i.test(h));
+                    const iRegH = iHeaders.find(h => /reg/i.test(h));
+                    const iNameH = iHeaders.find(h => /name/i.test(h));
+                    const iEmailH = iHeaders.find(h => /email/i.test(h));
 
-                if (iRegH) {
-                    iRows.forEach(row => {
-                        const reg = String(row[iRegH]).toLowerCase().trim();
-                        if (!reg) return;
-                        if (!studentMasterMap[reg]) {
-                            studentMasterMap[reg] = {
-                                RegNo: row[iRegH],
-                                Name: iNameH ? row[iNameH] : '',
-                                Email: iEmailH ? row[iEmailH] : '',
-                                Department: targetDept,
-                                Total: 0,
-                                subjects: {}
-                            };
-                        }
-                        // Update Email if found later
-                        if (!studentMasterMap[reg].Email && iEmailH && row[iEmailH]) {
-                            studentMasterMap[reg].Email = row[iEmailH];
-                        }
+                    if (iRegH) {
+                        iRows.forEach(row => {
+                            const reg = String(row[iRegH]).toLowerCase().trim();
+                            if (!reg) return;
+                            if (!studentMasterMap[reg]) {
+                                studentMasterMap[reg] = {
+                                    RegNo: row[iRegH],
+                                    Name: iNameH ? row[iNameH] : '',
+                                    Email: iEmailH ? row[iEmailH] : '',
+                                    Department: targetDept,
+                                    Total: 0,
+                                    subjects: {}
+                                };
+                            }
+                            // Update Email if found later
+                            if (!studentMasterMap[reg].Email && iEmailH && row[iEmailH]) {
+                                studentMasterMap[reg].Email = row[iEmailH];
+                            }
+                        });
+                    }
+
+                    subjectColumns.forEach(subHeader => {
+                       let standardCode = subHeader;
+                       const configMatch = confSubjects.find(c => normalizeLabel(subHeader).includes(normalizeLabel(c.code)));
+                       if (configMatch) standardCode = configMatch.code;
+
+                       const maxPossible = configMatch ? configMatch.maxMarks : 15;
+                       
+                       if (!subjectMap[standardCode]) {
+                          subjectMap[standardCode] = { code: standardCode, maxPossible, students: {} };
+                       }
+
+                       iRows.forEach(row => {
+                         if (!iRegH) return;
+                         const reg = String(row[iRegH]).toLowerCase().trim();
+                         const mark = Number(row[subHeader]) || 0;
+                         
+                         if (reg && studentMasterMap[reg]) {
+                            // Aggregate for Subject Map
+                            if (subjectMap[standardCode].students[reg]) {
+                                 if (dataScope === 'Consolidated') subjectMap[standardCode].students[reg].mark += mark;
+                                 else subjectMap[standardCode].students[reg].mark = mark;
+                            } else {
+                               subjectMap[standardCode].students[reg] = {
+                                  reg: String(row[iRegH]),
+                                  name: iNameH ? String(row[iNameH]) : '',
+                                  email: iEmailH ? String(row[iEmailH]) : '',
+                                  dept: targetDept,
+                                  mark: mark
+                               };
+                            }
+
+                            // Aggregate for Master Map
+                            if (!studentMasterMap[reg].subjects[standardCode]) studentMasterMap[reg].subjects[standardCode] = 0;
+                            if (dataScope === 'Consolidated') studentMasterMap[reg].subjects[standardCode] += mark;
+                            else studentMasterMap[reg].subjects[standardCode] = mark;
+                         }
+                       });
                     });
+                } catch(e) {
+                    console.warn(`Internal Stats: Failed to fetch ${ipId} - ${targetDept}`, e);
                 }
-
-                subjectColumns.forEach(subHeader => {
-                   let standardCode = subHeader;
-                   const configMatch = confSubjects.find(c => normalizeLabel(subHeader).includes(normalizeLabel(c.code)));
-                   if (configMatch) standardCode = configMatch.code;
-
-                   const maxPossible = configMatch ? configMatch.maxMarks : 15;
-                   
-                   if (!subjectMap[standardCode]) {
-                      subjectMap[standardCode] = { code: standardCode, maxPossible, students: {} };
-                   }
-
-                   iRows.forEach(row => {
-                     if (!iRegH) return;
-                     const reg = String(row[iRegH]).toLowerCase().trim();
-                     const mark = Number(row[subHeader]) || 0;
-                     
-                     if (reg && studentMasterMap[reg]) {
-                        // Aggregate for Subject Map
-                        if (subjectMap[standardCode].students[reg]) {
-                             if (dataScope === 'Consolidated') subjectMap[standardCode].students[reg].mark += mark;
-                             else subjectMap[standardCode].students[reg].mark = mark;
-                        } else {
-                           subjectMap[standardCode].students[reg] = {
-                              reg: String(row[iRegH]),
-                              name: iNameH ? String(row[iNameH]) : '',
-                              email: iEmailH ? String(row[iEmailH]) : '',
-                              dept: targetDept,
-                              mark: mark
-                           };
-                        }
-
-                        // Aggregate for Master Map
-                        if (!studentMasterMap[reg].subjects[standardCode]) studentMasterMap[reg].subjects[standardCode] = 0;
-                        if (dataScope === 'Consolidated') studentMasterMap[reg].subjects[standardCode] += mark;
-                        else studentMasterMap[reg].subjects[standardCode] = mark;
-                     }
-                   });
-                });
               }
             }
         }
@@ -489,7 +497,7 @@ export const AdminPortal: React.FC<Props> = ({
       
       const dept = String(student[headerKeys.dept]);
       const semConfig = batchConfig.semesters[currentSemester];
-      const internalIds = semConfig ? semConfig.internals : Object.keys(batchConfig.internalMarksSheets);
+      const internalIds = semConfig ? semConfig.internals : []; // Updated logic
       
       const internalDataMap: Record<string, SubjectMark[]> = {};
       const consolidatedMap = new Map<string, SubjectMark>();
@@ -498,7 +506,7 @@ export const AdminPortal: React.FC<Props> = ({
       // 1. Fetch Internal Marks & Activity Data from all Reward Sheets in Semester
       await Promise.all(internalIds.map(async (ipId) => {
          // Reward Points & Activity parsing
-         const rSheet = batchConfig.rewardSheets[ipId];
+         const rSheet = semConfig.rewardSheets[ipId];
          if(rSheet) {
             try {
               const { headers: rh, rows: rr } = await fetchSheetData(rSheet);
@@ -522,7 +530,7 @@ export const AdminPortal: React.FC<Props> = ({
          }
 
          // Internal Marks Parsing
-         const sheetConfig = batchConfig.internalMarksSheets[ipId]?.[dept];
+         const sheetConfig = semConfig.internalMarksSheets[ipId]?.[dept];
          if (sheetConfig) {
             try {
                const { headers: iHeaders, rows: iRows } = await fetchSheetData(sheetConfig);
@@ -530,7 +538,7 @@ export const AdminPortal: React.FC<Props> = ({
                if (regH) {
                   const row = iRows.find(r => String(r[regH]).toLowerCase().trim() === String(student[headerKeys.reg]).toLowerCase().trim());
                   if (row) {
-                     const { subjects } = parseInternalMarks(iHeaders, row, dept, batchConfig.subjectConfig);
+                     const { subjects } = parseInternalMarks(iHeaders, row, dept, semConfig.subjectConfig);
                      internalDataMap[ipId] = subjects;
                      subjects.forEach(sub => {
                        const existing = consolidatedMap.get(sub.code);
