@@ -145,8 +145,92 @@ export const BATCHES: BatchConfig[] = [
               { code: "25BCS12E", type: "Theory", maxMarks: 15 }
             ]
           }
-        },
+        }
+      }, 
         // --- END SEMESTER 1 ---
+              // ============================================================
+      // SEMESTER 2 (NEW — SAMPLE DATA, CHANGE SHEET IDs)
+      // ============================================================
+
+      "2": {
+
+        label: "Semester 2",
+
+        internals: ["IP1", "IP2"],
+
+        rewardSheets: {
+
+          IP1: {
+            id: "1cByligzZTzKQQgJA1KTkiEHT1ggeFLibdoFJdHXI4Bw",
+            name: "Semester2_IP1_Rewards"
+          },
+
+          IP2: {
+            id: "PASTE_SEM2_IP2_REWARD_SHEET_ID",
+            name: "Semester2_IP2_Rewards"
+          }
+
+        },
+
+
+        internalMarksSheets: {
+
+          IP1: {
+
+            "B.Sc CS": {
+              id: "PASTE_SEM2_IP1_CS_INTERNAL_SHEET_ID",
+              name: "B.Sc CS"
+            },
+
+            "B.Sc IT": {
+              id: "PASTE_SEM2_IP1_IT_INTERNAL_SHEET_ID",
+              name: "B.Sc IT"
+            }
+
+          },
+
+
+          IP2: {
+
+            "B.Sc CS": {
+              id: "PASTE_SEM2_IP2_CS_INTERNAL_SHEET_ID",
+              name: "B.Sc CS"
+            },
+
+            "B.Sc IT": {
+              id: "PASTE_SEM2_IP2_IT_INTERNAL_SHEET_ID",
+              name: "B.Sc IT"
+            }
+
+          }
+
+        },
+
+
+        subjectConfig: {
+
+          defaultMaxMarks: {
+            Theory: 15,
+            Lab: 15,
+            "Lab + Theory": 15
+          },
+
+          departments: {
+
+            "B.Sc CS": [
+              { code: "25BCS2CA", type: "Theory", maxMarks: 15 },
+              { code: "25BCS2CP", type: "Lab", maxMarks: 15 }
+            ],
+
+            "B.Sc IT": [
+              { code: "25BIT2CA", type: "Theory", maxMarks: 15 },
+              { code: "25BIT2CP", type: "Lab", maxMarks: 15 }
+            ]
+
+          }
+
+        }
+        
       }
     }
   },
