@@ -175,18 +175,14 @@ export const BATCHES: BatchConfig[] = [
 
         internalMarksSheets: {
 
-          IP1: {
-
-            "B.Sc CS": {
-              id: "PASTE_SEM2_IP1_CS_INTERNAL_SHEET_ID",
-              name: "B.Sc CS"
-            },
-
-            "B.Sc IT": {
-              id: "PASTE_SEM2_IP1_IT_INTERNAL_SHEET_ID",
-              name: "B.Sc IT"
-            }
-
+        IP1: {
+            "B.Sc  AIML": { id: "1fX3C0pqWoJ1NtxpH2TT8kRCrJwOZnQ1IumxifGgnr8Q", name: "B.Sc  AIML" },
+            "B.Sc  CS with AI": { id: "14a6Wad24n2yGvuuJE1W8qMkvKqzbG9C24dGrnmaJZMI", name: "B.Sc  CS with AI" },
+            "B.Sc CS": { id: "134Xxcovbetu9Ftp0byVoHlcVUNlz6t6OKpnbKI1ISHw", name: "B.Sc CS" },
+            "B.Sc DCFS": { id: "1j9EYqC52mTdVymkuSpphqVJJ_Tb1xFVwc2U2oBO_mLY", name: "B.Sc DCFS" },
+            "B.Sc DS": { id: "1iWG670KusT54z5nj_UoWldhsm9XJGmf4w-rmjPwEfoc", name: "B.Sc DS" },
+            "B.Sc DSA": { id: "1toZUWr1dfEknSrWIl65FLyV24VnXs5nzXVFQJBHs9VY", name: "B.Sc DSA" },
+            "B.Sc IT": { id: "1yFS1h8Xd3c0JozHspL81sDdj6iIm0yriqCg0FewlteM", name: "B.Sc IT" }
           },
 
 
@@ -218,15 +214,67 @@ export const BATCHES: BatchConfig[] = [
           departments: {
 
             "B.Sc CS": [
-              { code: "25BCS2CA", type: "Theory", maxMarks: 15 },
-              { code: "25BCS2CP", type: "Lab", maxMarks: 15 }
-            ],
+    { code: "25BCS2CA", type: "Theory" },
+    { code: "25BCS2CP", type: "Lab" },
+    { code: "25BCS2AA", type: "Theory" },
+    { code: "25BCS2EA", type: "Theory" },
+    { code: "25BCS21T", type: "Theory" },
+    { code: "25BCS22E", type: "Theory" }
+  ],
 
-            "B.Sc IT": [
-              { code: "25BIT2CA", type: "Theory", maxMarks: 15 },
-              { code: "25BIT2CP", type: "Lab", maxMarks: 15 }
-            ]
+  "B.Sc  CS with AI": [
+    { code: "25BAR2CA", type: "Theory" },
+    { code: "25BAR2CP", type: "Lab" },
+    { code: "25BAR2AA", type: "Theory" },
+    { code: "25BAR2EA", type: "Theory" },
+    { code: "25BCS21T", type: "Theory" },
+    { code: "25BCS22E", type: "Theory" }
+  ],
 
+  "B.Sc  AIML": [
+    { code: "25BAM2CA", type: "Theory" },
+    { code: "25BAM2CP", type: "Lab" },
+    { code: "25BAM2AA", type: "Theory" },
+    { code: "25BAM2EA", type: "Theory" },
+    { code: "25BCS21T", type: "Theory" },
+    { code: "25BCS22E", type: "Theory" }
+  ],
+
+  "B.Sc DSA": [
+    { code: "25BDA2CA", type: "Theory" },
+    { code: "25BDA2CP", type: "Lab" },
+    { code: "25BDA2AA", type: "Theory" },
+    { code: "25BDA2EA", type: "Theory" },
+    { code: "25BCS21T", type: "Theory" },
+    { code: "25BCS22E", type: "Theory" }
+  ],
+
+  "B.Sc DS": [
+    { code: "25BDS2CA", type: "Theory" },
+    { code: "25BDS2CP", type: "Lab" },
+    { code: "25BDS2AA", type: "Theory" },
+    { code: "25BDS2EA", type: "Theory" },
+    { code: "25BCS21T", type: "Theory" },
+    { code: "25BCS22E", type: "Theory" }
+  ],
+
+  "B.Sc IT": [
+    { code: "25BIT2CA", type: "Theory" },
+    { code: "25BIT2CP", type: "Lab" },
+    { code: "25BIT2AA", type: "Theory" },
+    { code: "25BIT2EA", type: "Theory" },
+    { code: "25BCS21T", type: "Theory" },
+    { code: "25BCS22E", type: "Theory" }
+    
+  ],
+  "B.Sc DCFS": [
+    { code: "25BDC2CA", type: "Theory" },
+    { code: "25BDC2CP", type: "Lab" },
+    { code: "25BDC2AA", type: "Theory" },
+    { code: "25BDC2EA", type: "Theory" },
+    { code: "25BCS21T", type: "Theory" },
+    { code: "25BCS22E", type: "Theory" }
+  ]
           }
 
         }
