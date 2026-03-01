@@ -214,66 +214,66 @@ export const BATCHES: BatchConfig[] = [
           departments: {
 
             "B.Sc CS": [
-    { code: "25BCS2CA", type: "Theory" },
-    { code: "25BCS2CP", type: "Lab" },
-    { code: "25BCS2AA", type: "Theory" },
-    { code: "25BCS2EA", type: "Theory" },
-    { code: "25BCS21T", type: "Theory" },
-    { code: "25BCS22E", type: "Theory" }
+    { code: "25BCS2CA", type: "Theory", maxMarks: 15 },
+    { code: "25BCS2CP", type: "Lab", maxMarks: 15 },
+    { code: "25BCS2AA", type: "Theory", maxMarks: 15 },
+    { code: "25BCS2EA", type: "Theory", maxMarks: 15 },
+    { code: "25BCS21T", type: "Theory", maxMarks: 15 },
+    { code: "25BCS22E", type: "Theory", maxMarks: 15 }
   ],
 
   "B.Sc  CS with AI": [
-    { code: "25BAR2CA", type: "Theory" },
-    { code: "25BAR2CP", type: "Lab" },
-    { code: "25BAR2AA", type: "Theory" },
-    { code: "25BAR2EA", type: "Theory" },
-    { code: "25BCS21T", type: "Theory" },
-    { code: "25BCS22E", type: "Theory" }
+    { code: "25BAR2CA", type: "Theory", maxMarks: 15 },
+    { code: "25BAR2CP", type: "Lab", maxMarks: 15 },
+    { code: "25BAR2AA", type: "Theory", maxMarks: 15 },
+    { code: "25BAR2EA", type: "Theory", maxMarks: 15 },
+    { code: "25BCS21T", type: "Theory", maxMarks: 15 },
+    { code: "25BCS22E", type: "Theory", maxMarks: 15 }
   ],
 
   "B.Sc  AIML": [
-    { code: "25BAM2CA", type: "Theory" },
-    { code: "25BAM2CP", type: "Lab" },
-    { code: "25BAM2AA", type: "Theory" },
-    { code: "25BAM2EA", type: "Theory" },
-    { code: "25BCS21T", type: "Theory" },
-    { code: "25BCS22E", type: "Theory" }
+    { code: "25BAM2CA", type: "Theory", maxMarks: 15 },
+    { code: "25BAM2CP", type: "Lab", maxMarks: 15 },
+    { code: "25BAM2AA", type: "Theory", maxMarks: 15 },
+    { code: "25BAM2EA", type: "Theory", maxMarks: 15 },
+    { code: "25BCS21T", type: "Theory", maxMarks: 15 },
+    { code: "25BCS22E", type: "Theory", maxMarks: 15 }
   ],
 
   "B.Sc DSA": [
-    { code: "25BDA2CA", type: "Theory" },
-    { code: "25BDA2CP", type: "Lab" },
-    { code: "25BDA2AA", type: "Theory" },
-    { code: "25BDA2EA", type: "Theory" },
-    { code: "25BCS21T", type: "Theory" },
-    { code: "25BCS22E", type: "Theory" }
+    { code: "25BDA2CA", type: "Theory", maxMarks: 15 },
+    { code: "25BDA2CP", type: "Lab", maxMarks: 15 },
+    { code: "25BDA2AA", type: "Theory", maxMarks: 15 },
+    { code: "25BDA2EA", type: "Theory", maxMarks: 15 },
+    { code: "25BCS21T", type: "Theory", maxMarks: 15 },
+    { code: "25BCS22E", type: "Theory", maxMarks: 15 }
   ],
 
   "B.Sc DS": [
-    { code: "25BDS2CA", type: "Theory" },
-    { code: "25BDS2CP", type: "Lab" },
-    { code: "25BDS2AA", type: "Theory" },
-    { code: "25BDS2EA", type: "Theory" },
-    { code: "25BCS21T", type: "Theory" },
-    { code: "25BCS22E", type: "Theory" }
+    { code: "25BDS2CA", type: "Theory", maxMarks: 15 },
+    { code: "25BDS2CP", type: "Lab", maxMarks: 15 },
+    { code: "25BDS2AA", type: "Theory", maxMarks: 15 },
+    { code: "25BDS2EA", type: "Theory", maxMarks: 15 },
+    { code: "25BCS21T", type: "Theory", maxMarks: 15 },
+    { code: "25BCS22E", type: "Theory", maxMarks: 15 }
   ],
 
   "B.Sc IT": [
-    { code: "25BIT2CA", type: "Theory" },
-    { code: "25BIT2CP", type: "Lab" },
-    { code: "25BIT2AA", type: "Theory" },
-    { code: "25BIT2EA", type: "Theory" },
-    { code: "25BCS21T", type: "Theory" },
-    { code: "25BCS22E", type: "Theory" }
+    { code: "25BIT2CA", type: "Theory", maxMarks: 15 },
+    { code: "25BIT2CP", type: "Lab", maxMarks: 15 },
+    { code: "25BIT2AA", type: "Theory", maxMarks: 15 },
+    { code: "25BIT2EA", type: "Theory", maxMarks: 15 },
+    { code: "25BCS21T", type: "Theory", maxMarks: 15 },
+    { code: "25BCS22E", type: "Theory", maxMarks: 15 }
     
   ],
   "B.Sc DCFS": [
-    { code: "25BDC2CA", type: "Theory" },
-    { code: "25BDC2CP", type: "Lab" },
-    { code: "25BDC2AA", type: "Theory" },
-    { code: "25BDC2EA", type: "Theory" },
-    { code: "25BCS21T", type: "Theory" },
-    { code: "25BCS22E", type: "Theory" }
+    { code: "25BDC2CA", type: "Theory", maxMarks: 15 },
+    { code: "25BDC2CP", type: "Lab", maxMarks: 15 },
+    { code: "25BDC2AA", type: "Theory", maxMarks: 15 },
+    { code: "25BDC2EA", type: "Theory", maxMarks: 15 },
+    { code: "25BCS21T", type: "Theory", maxMarks: 15 },
+    { code: "25BCS22E", type: "Theory", maxMarks: 15 }
   ]
           }
 
