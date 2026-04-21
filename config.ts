@@ -166,7 +166,7 @@ export const BATCHES: BatchConfig[] = [
           },
 
           IP2: {
-            id: "PASTE_SEM2_IP2_REWARD_SHEET_ID",
+            id: "1Ax3N09QlcAAhcwzBjIYDAKiM7EugS9iUFQsuRj1lHr8",
             name: "Semester2_IP2_Rewards"
           }
 
