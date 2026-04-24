@@ -187,18 +187,16 @@ export const BATCHES: BatchConfig[] = [
 
 
           IP2: {
-
-            "B.Sc CS": {
-              id: "PASTE_SEM2_IP2_CS_INTERNAL_SHEET_ID",
-              name: "B.Sc CS"
-            },
-
-            "B.Sc IT": {
-              id: "PASTE_SEM2_IP2_IT_INTERNAL_SHEET_ID",
-              name: "B.Sc IT"
-            }
-
+            "B.Sc  AIML": { id: "1NXvN7voTQpib1-IH_Rvh_iddeGh7ZLnELLY8ZTE31_8", name: "B.Sc  AIML" },
+            "B.Sc  CS with AI": { id: "1QUyMIJZj7toKdwxRQcvNAFX6f9KpPYidXJtvpUGv3-U", name: "B.Sc  CS with AI" },
+            "B.Sc CS": { id: "17LkRuIWHfgI-c9dJV4DPln_rDnbZIPJyJWd8JeRnxlU", name: "B.Sc CS" },
+            "B.Sc DCFS": { id: "1j26jY0FHXzd-I5B6J9ZDpfhgTk5X-P1DEKeSCV1VZfU", name: "B.Sc DCFS" },
+            "B.Sc DS": { id: "1MkU7BU96BnAcaN6KCp5NzKPXgJ4wlsi_VNupKhlyPJ8", name: "B.Sc DS" },
+            "B.Sc DSA": { id: "1RAvwSqM0ewOf8faUxGaFWGVgBHz57JRwUph47kQokNg", name: "B.Sc DSA" },
+            "B.Sc IT": { id: "1mxz8oWNk4wGy8gNGvVCAPSDvMb7wPGVCeRM1A7muS60", name: "B.Sc IT" }
           }
+            
+            
 
         },
 
